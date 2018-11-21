@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+ 
+<mapper namespace="com.yzeng.charme.mapper.MessageMapper">
+ 
+ 
+	<select id="getMsgById" parameterType="java.lang.Integer" resultType="Message">
+		SELECT * FROM t_message WHERE ID = #{id}
+	</select>
+	
+	<insert id="insertMsg" parameterType="Message">
+		insert into t_message(msgType,fromUserId,toUserId,content,sendMsgTime,isOffline) 
+			values(#{msgType,jdbcType=INTEGER},
+				   #{fromUserId,jdbcType=INTEGER},
+				   #{toUserId,jdbcType=INTEGER},
+				   #{content,jdbcType=VARCHAR},
+				   #{sendMsgTime,jdbcType=TIMESTAMP},
+				   #{isOffline,jdbcType=CHAR}
+				  )
+	</insert>
+	
+	<select id="getMessageTotalCount" parameterType="Message" resultType="Integer">
+		SELECT count(id) FROM t_message t 
+			WHERE t.fromUserId in(#{fromUserId},#{toUserId})  
+				  AND t.toUserId in (#{fromUserId},#{toUserId}) 
+				  AND t.msgType = #{msgType} 
+	</select>
+	
+	<select id="getMessageloggingList" parameterType="Message" resultType="Message">
+		SELECT * FROM t_message t 
+			WHERE t.fromUserId in(#{fromUserId},#{toUserId})  
+				  AND t.toUserId in (#{fromUserId},#{toUserId}) 
+				  AND t.msgType = #{msgType} 
+				  
+	</select>
+	<!-- 查询离线消息 -->
+	<select id="getOfflineMessageList" parameterType="java.lang.Integer" resultType="Message">
+		select * from t_message t where t.toUserId = #{userId} and t.isOffline = 'Y'
+	</select>
+	
+	<!-- 查询消息传输状态1：已读 0：未读 2：失败-->
+	<select id="getMessageListByStatus" parameterType="Message" resultType="Message">
+		select * from t_message t where t.toUserId = #{toUserId} and t.isTransport = #{isTransport}
+	</select>
+	
+	<update id="updateMessage" parameterType="Message">
+		update t_message t
+		<set>
+			<if test="isOffline != null and isOffline != ''">
+				t.isOffline = #{isOffline},
+			</if>
+			<if test="isTransport != null and isTransport != '' or isTransport == 0">
+				t.isTransport = #{isTransport},
+			</if>
+		</set>
+		where 1 = 1
+			<if test="fromUserId == null or fromUserId == '' or toUserId == null or toUserId == ''">
+			  and t.id = #{id}
+			</if>
+			<if test="fromUserId != null and fromUserId != ''">
+				and t.fromUserId = #{fromUserId}
+			</if>
+			<if test="toUserId != null and toUserId != ''">
+				and t.toUserId = #{toUserId}
+			</if>
+	</update>
+	
+</mapper>

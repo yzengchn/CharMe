@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+ 
+<mapper namespace="com.yzeng.charme.mapper.UserMapper">
+ 
+ 	<select id="getUserByName" parameterType="STRING" resultType="User">
+ 		select * from t_user where username = #{username}
+ 	</select>
+ 
+ 
+	<select id="getNameById" parameterType="User" resultType="User">
+		SELECT * FROM t_user WHERE ID = #{id}
+	</select>
+	
+	<insert id="insertUser" parameterType="User" useGeneratedKeys="true" keyProperty="id">
+		insert into t_user(username,password,salt,registertime,lastTime) 
+			values(#{username,jdbcType=VARCHAR},
+				   #{password,jdbcType=VARCHAR},
+				   #{salt,jdbcType=VARCHAR},
+				   #{registertime,jdbcType=TIMESTAMP},
+				   #{lastTime,jdbcType=TIMESTAMP}
+				  )
+	</insert>
+	
+	<insert id="insertTest" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tbl(description) VALUES('MySQL last_insert_id');    
+		<selectKey resultType="int" order="AFTER" keyProperty="id">   
+            SELECT LAST_INSERT_ID()   
+        </selectKey> 
+    </insert>
+	
+	
+</mapper>

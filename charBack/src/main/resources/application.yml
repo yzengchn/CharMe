@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: charMe
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+  data:
+    mongodb:
+      uri: mongodb://139.199.86.201:27017/charself
+  jpa:
+    generate-ddl: true
+    show-sql: true    
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url:  jdbc:mysql://139.199.86.201:3306/test?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true
+    username: root
+    password: ENC(Z0W0OKw1+Dfi5KY8Q5lqvA==)
+    type: com.alibaba.druid.pool.DruidDataSource
+
+    
+  rabbitmq:
+    host: 139.199.86.201
+    port: 5672
+    username: admin
+    password: ENC(f+qnmR9RF8W2wsJqzIJUPMj4KpJ4eIco)
+    
+jasypt:
+  encryptor:
+    password: saltnewfor
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.yzeng.charme.entity
+  
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
+  support-methods-arguments: true
+  params: count=countSql

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+ 
+<mapper namespace="com.yzeng.charme.mapper.GroupMapper">
+
+	<!-- 创建群 -->
+	<insert id="addGroup" parameterType="Group" useGeneratedKeys="true" keyProperty="id">
+		insert into t_group(createUserId,groupName,groupDescribes,createTime) 
+			values(#{createUserId,jdbcType=INTEGER},
+				   #{groupName,jdbcType=VARCHAR},
+				   #{groupDescribes,jdbcType=VARCHAR},
+				   #{createTime,jdbcType=TIMESTAMP}
+				  )
+	</insert>
+	<!-- 加群 -->
+	<insert id="addUserToGroup" >
+		INSERT INTO group_user VALUES(#{groupId},#{userId},SYSDATE())
+	</insert>
+	<!-- 查询该用户创建的群 -->
+	<select id="getGroupByCreateUserId" parameterType="INTEGER" resultType="Group">
+		SELECT * FROM t_group g WHERE g.createUserId = #{userId}
+	</select>
+	<!-- 查询该用户加入的群 -->
+	<select id="getGroupByUserId" parameterType="INTEGER" resultType="Group">
+		SELECT * FROM group_user gu 
+			LEFT JOIN t_group t ON t.id = gu.groupId
+			WHERE gu.userId = #{userId} AND <![CDATA[t.createUserId <> #{userId}]]>
+	</select>
+	<!-- 查询该用户所有的群 -->
+	<select id="getAllGroupByUserId" parameterType="INTEGER" resultType="Group">
+		SELECT * FROM group_user gu 
+			LEFT JOIN t_group t ON t.id = gu.groupId
+			WHERE gu.userId = #{userId}
+	</select>
+	
+	<select id="getGroupUserByGroupId" parameterType="INTEGER" resultMap="GroupUser">
+		SELECT gu.groupId,
+			   DATE_FORMAT(gu.jointime,"%Y-%m-%d %T") AS jointime,
+			   u.* 
+			FROM t_userInfo u
+			LEFT JOIN group_user gu ON u.id = gu.userId
+			WHERE gu.groupId = #{groupId}
+	</select>
+	
+	<resultMap type="map" id="GroupUser">
+		<result column="groupId" property="groupId" jdbcType="INTEGER" />
+		<result column="jointime" property="jointime" jdbcType="VARCHAR" />
+		<result column="userId" property="userId" jdbcType="INTEGER" />
+		<result column="username" property="userName" jdbcType="VARCHAR" />
+		<result column="nickname" property="nickName" jdbcType="VARCHAR" />
+		<result column="isOnline" property="isOnline" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<!-- 查询群消息总数 -->
+	<select id="getGroupMsgCount" parameterType="INTEGER" resultType="INTEGER">
+		SELECT COUNT(t.id) FROM t_message t 
+			WHERE 
+				t.toUserId = #{groupId}
+				AND t.msgType = 2
+	</select>
+	<!-- 查询群消息 -->
+	<select id="getGroupMsg" parameterType="INTEGER" resultMap="GroupMsg">
+		SELECT 
+			   t.fromUserId,
+			   u.username,
+			   t.content,
+			   DATE_FORMAT(t.sendMsgTime,"%Y-%m-%d %T") AS sendMsgTime
+		 FROM t_message t 
+		 LEFT JOIN t_userInfo u ON u.userId = t.fromUserId
+			WHERE 
+				t.toUserId = #{groupId}
+				  AND t.msgType = 2
+				  ORDER BY t.sendMsgTime 
+	</select>
+	<resultMap type="map" id="GroupMsg">
+		<result column="fromUserId" property="fromUserId" jdbcType="INTEGER" />
+		<result column="username" property="userName" jdbcType="VARCHAR" />
+		<result column="content" property="content" jdbcType="VARCHAR" />
+		<result column="sendMsgTime" property="sendMsgTime" jdbcType="VARCHAR" />
+	</resultMap>
+</mapper>

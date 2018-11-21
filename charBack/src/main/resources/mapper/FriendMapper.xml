@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+ 
+<mapper namespace="com.yzeng.charme.mapper.FriendMapper">
+	
+	<insert id="addFriend" parameterType="UserRelation" useGeneratedKeys="true" keyProperty="id">
+		insert into t_relation(userIdA,userIdB,relationTime) 
+			values(#{userIdA,jdbcType=INTEGER},
+				   #{userIdB,jdbcType=INTEGER},
+				   #{relationTime,jdbcType=TIMESTAMP}
+				  )
+	</insert>
+	
+</mapper>
